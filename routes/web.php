@@ -4,6 +4,17 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AdminController;
 use App\Http\Middleware\EnsureAdminTwoFactor;
+use App\Http\Controllers\HomeController;
+use App\Http\Middleware\EnsureEmpleado;
+
+
+
+
+
+
+Route::get('/home', [HomeController::class, 'index'])
+    ->name('home')
+    ->middleware(['auth', EnsureEmpleado::class]);
 
 
 Route::get('/', function () {
@@ -11,7 +22,6 @@ Route::get('/', function () {
 });
 
 Auth::routes();
-
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 
