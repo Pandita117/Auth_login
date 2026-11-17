@@ -7,23 +7,27 @@
             <div class="card shadow-sm">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span class="fw-bold">Panel de Administración</span>
-                    <span class="badge bg-success">2FA Verificado</span>
+                    <span class="badge bg-dark">Rol: Administrador</span>
                 </div>
 
                 <div class="card-body">
                     <h5 class="card-title">Bienvenido, {{ Auth::user()->name }}</h5>
                     <p class="card-text text-muted">
-                        Has iniciado sesión y verificado tu identidad administrativa correctamente.
+                        Desde este panel tienes acceso total al sistema, incluyendo la administración de usuarios, deshabilitación (Soft Delete), restauración y eliminación permanente.
                     </p>
 
-                    <hr>
+                    <div class="d-flex gap-2 mt-3">
+                        <a href="{{ route('users.index') }}" class="btn btn-primary">
+                            Gestionar Usuarios (CRUD)
+                        </a>
 
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="btn btn-outline-danger btn-sm">
-                            Cerrar sesión
-                        </button>
-                    </form>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="btn btn-outline-danger">
+                                Cerrar sesión
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

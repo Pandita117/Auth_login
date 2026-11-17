@@ -53,8 +53,8 @@ class UserController extends Controller
     {
         //validaciones para guardar registros
         $request->validate([
-            'name'  => ['requiered', 'string', 'max:255'],
-            'email' => ['requiered' , 'string', 'email' , 'max:255' , 'unique:users,email'],
+            'name'  => ['required', 'string', 'max:255'],
+            'email' => ['required' , 'string', 'email' , 'max:255' , 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'role'     => ['required', 'exists:roles,name'],
 
@@ -105,37 +105,41 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, User $user)
-    {           
+   public function update(Request $request, User $user)
+{
+    $esAdmin = Auth::user()->hasRole('admin');
 
-        $request->validate([
-            'name'     => ['required', 'string', 'max:255'],
-            'email'    => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
-            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
-            'role'     => ['required', 'exists:roles,name'],
-        ]);
-
-        if(!Auth::user()->isAdmin() && ($user->isAdmin() || $request->role === 'admin')){
-            abort(403, 'No tienes permisos para editar usuarios con rol de Administrador.');
-        }
-
-        $datos = [
-            'name' => $request->name,
-            'email' => $request->email,
-        ];
-
-        if ($request->filled('password')) {
-            $datos['password'] = $request->password;
-        }
-
-        //acualizamos
-        $user->update($datos);
-        $user->syncRoles([$request->role]);
-
-            //lo redirecciona la usuarios despues de actualizar 
-        return redirect()->route('users.index')
-            ->with('status', 'Usuario actualizado correctamente');
+    if (!$esAdmin && $user->hasRole('admin')) {
+        abort(403, 'No tienes permisos para editar usuarios con rol de Administrador.');
     }
+
+    $request->validate([
+        'name'     => ['required', 'string', 'max:255'],
+        'email'    => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+        'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+        'role'     => $esAdmin ? ['required', 'exists:roles,name'] : ['nullable'],
+    ]);
+
+    $datos = [
+        'name'  => $request->name,
+        'email' => $request->email,
+    ];
+
+    if ($request->filled('password')) {
+        $datos['password'] = $request->password;
+    }
+
+    $user->update($datos);
+
+    if ($esAdmin) {
+        $user->syncRoles([$request->role]);
+    } else {
+        $user->syncRoles(['Empleado']);
+    }
+
+    return redirect()->route('users.index')
+        ->with('status', 'Usuario actualizado correctamente');
+}
 
     /**
      * Remove the specified resource from storage.

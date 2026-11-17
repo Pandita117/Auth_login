@@ -1,59 +1,33 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
-use App\Http\Controllers\AdminController;
-use App\Http\Middleware\EnsureAdminTwoFactor;
 use App\Http\Controllers\HomeController;
-use App\Http\Middleware\EnsureEmpleado;
 use App\Http\Controllers\UserController;
-
-
-
-
-
-
-
-Route::get('/home', [HomeController::class, 'index'])
-    ->name('home')
-    ->middleware(['auth', EnsureEmpleado::class]);
-
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AdminController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
 Auth::routes();
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 
-
-// Rutas del proceso 2FA (requiere estar autenticado)
-Route::middleware(['auth'])->group(function () {
-    // URL temporal
-    Route::get('/admin/autenticar/{token}', [AdminController::class, 'showVerifyForm'])
-        ->name('admin.autenti')
-        ->middleware('signed');
-
-    // Procesar el código ingresado
-    Route::post('/admin/autenticar', [AdminController::class, 'verifyCode'])
-        ->name('admin.autenti.verify');
-});
-
-// Rutas administrativas ya verificadas con 2FA
-Route::middleware(['auth', EnsureAdminTwoFactor::class])
+// Panel exclusivo del Administrador
+Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
         Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
-        // Aquí agregas el resto de tus rutas administrativas
     });
 
+Route::get('/home', [HomeController::class, 'index'])
+    ->name('home')
+    ->middleware('auth');
 
-    //rutas para el controlador de usuarios
-
+// Rutas del CRUD protegidas únicamente por login y permisos de Spatie
 Route::middleware(['auth'])->group(function () {
-    // Listado y detalle (Empleado y Admin)
+    // Listado (Empleado y Admin)
     Route::get('/users', [UserController::class, 'index'])
         ->name('users.index')
         ->middleware('permission:users.view');
@@ -66,7 +40,7 @@ Route::middleware(['auth'])->group(function () {
         ->name('users.store')
         ->middleware('permission:users.create');
 
-    // Ver detalle (va después de /users/create para no colisionar con {user})
+    // Ver detalle (Empleado y Admin)
     Route::get('/users/{user}', [UserController::class, 'show'])
         ->name('users.show')
         ->middleware('permission:users.view');

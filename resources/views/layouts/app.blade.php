@@ -29,6 +29,16 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav me-auto">
+                        //navbar links
+                        @auth
+                      @can('users.view')
+        <li class="nav-item">
+            <a class="nav-link {{ request()->routeIs('users.*') ? 'active fw-bold' : '' }}" href="{{ route('users.index') }}">
+                Usuarios
+            </a>
+        </li>
+    @endcan
+@endauth
 
                     </ul>
 
