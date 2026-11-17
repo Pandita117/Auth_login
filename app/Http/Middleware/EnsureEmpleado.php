@@ -37,5 +37,6 @@ class EnsureEmpleado
         }
 
         return $next($request);
+        
     }
 }
