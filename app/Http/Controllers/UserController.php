@@ -50,38 +50,33 @@ class UserController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        //validaciones para guardar registros
-        $request->validate([
-            'name'  => ['required', 'string', 'max:255'],
-            'email' => ['required' , 'string', 'email' , 'max:255' , 'unique:users,email'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'role'     => ['required', 'exists:roles,name'],
+{
+    $esAdmin = Auth::user()->hasRole('admin');
 
-            
+    $request->validate([
+        'name'     => ['required', 'string', 'max:255'],
+        'email'    => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+        'password' => ['required', 'string', 'min:8', 'confirmed'],
+        'role'     => $esAdmin ? ['required', 'exists:roles,name'] : ['nullable'],
+    ]);
 
-        ]);
-
-            //para que usario que no es admin no pueda crear usuarios admin
-        if(!Auth::user()->isAdmin() && $request->role == 'admin') {
-            abort(403, 'No tienes permisos para asignar el rol de Administrador.');
-        }
-
-        //aqui se crera el usuario 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => $request->password,
-        ]);
-
-        $user->assignRole($request->role);
-
-        //lo redirigriemos a donde se listan los usuarios
-        return redirect()->route('users.index')
-            ->with('status', 'Usuario registrado correctamente');
-
+    if (!$esAdmin && $request->role === 'admin') {
+        abort(403, 'No tienes permisos para asignar el rol de Administrador.');
     }
 
+    $user = User::create([
+        'name'     => $request->name,
+        'email'    => $request->email,
+        'password' => $request->password,
+    ]);
+
+    // Si es admin asigna el rol elegido; si es Empleado asigna 'Empleado' por defecto
+    $rolAsignar = $esAdmin ? $request->role : 'Empleado';
+    $user->assignRole($rolAsignar);
+
+    return redirect()->route('users.index')
+        ->with('status', 'Usuario registrado correctamente');
+}
     /**
      * Display the specified resource.
      */
