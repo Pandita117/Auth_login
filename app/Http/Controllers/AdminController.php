@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
-    // Muestra el formulario de 2FA (protegido por middleware 'signed')
     public function showVerifyForm(Request $request)
     {
         // Si ya verificó su 2FA en esta sesión, lo mandamos al dashboard

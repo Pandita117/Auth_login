@@ -51,6 +51,7 @@ class UserController extends Controller
      */
     public function store(Request $request)
 {
+    //si su rol es admin 
     $esAdmin = Auth::user()->hasRole('admin');
 
     $request->validate([
@@ -70,7 +71,7 @@ class UserController extends Controller
         'password' => $request->password,
     ]);
 
-    // Si es admin asigna el rol elegido; si es Empleado asigna 'Empleado' por defecto
+    // si es admin asigna el rol elegido si es Empleado asigna empleado 
     $rolAsignar = $esAdmin ? $request->role : 'Empleado';
     $user->assignRole($rolAsignar);
 

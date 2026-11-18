@@ -11,8 +11,6 @@ Route::get('/', function () {
 });
 
 Auth::routes();
-
-
 // Panel exclusivo del Administrador
 Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
