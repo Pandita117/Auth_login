@@ -15,13 +15,13 @@ class MaestroController extends Controller
 public function index()
     {
         $alumnos = Alumno::with('user')->orderBy('id', 'asc')->get();
-        return view('maestro.dashboard', compact('alumnos'));
+        return view('alumnos.index', compact('alumnos'));
     }
 
 //formulario para crear nuevo chaval
     public function create()
     {
-        return view('maestro.create');
+        return view('alumnos.create');
     }
 
     //guarda el user con rol de alu
@@ -31,8 +31,7 @@ public function index()
             'name'         => ['required', 'string', 'max:255'],
             'email'        => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password'     => ['required', 'string', 'min:8', 'confirmed'],
-            'calificacion' => ['required', 'numeric', 'min:0', 'max:100'],
-            'faltas'       => ['required', 'integer', 'min:0'],
+            
         ]);
 
         DB::transaction(function () use ($request) {
@@ -46,12 +45,12 @@ public function index()
 
             Alumno::create([
                 'user_id'      => $user->id,
-                'calificacion' => $request->calificacion,
-                'faltas'       => $request->faltas,
+                'calificacion' => 0,
+                'faltas'       => 0,
             ]);
         });
 
-        return redirect()->route('maestro.dashboard')
+        return redirect()->route('alumnos.index')
             ->with('status', 'Alumno registrado correctamente.');
     }
 
@@ -59,7 +58,7 @@ public function index()
     public function edit(Alumno $alumno)
     {
         $alumno->load('user');
-        return view('maestro.edit', compact('alumno'));
+        return view('alumnos.edit', compact('alumno'));
     }
 
     // con este actualizas
@@ -91,7 +90,7 @@ public function index()
             ]);
         });
 
-        return redirect()->route('maestro.dashboard')
+        return redirect()->route('alumnos.index')
             ->with('status', 'Calificación y datos del alumno actualizados.');
     }
 
@@ -100,7 +99,7 @@ public function index()
     {
         $alumno->user->delete();
 
-        return redirect()->route('maestro.dashboard')
+        return redirect()->route('alumnos.index')
             ->with('status', 'Alumno eliminado correctamente.');
     }
 }

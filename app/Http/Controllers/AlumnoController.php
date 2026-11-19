@@ -11,6 +11,6 @@ class AlumnoController extends Controller
     public function index ()
     {
         $alumno = Auth::user()->alumno;
-        return view('alumnos.dashboard', compact('alumno'));
+        return view('alumno.dashboard', compact('alumno'));
     }
 }

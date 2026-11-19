@@ -17,7 +17,7 @@ class Alumno extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function getEquivalenciaAlfabetica():string
+    public function getEquivalenciaAttribute():string
     {
 
     $cal = (float) $this->calificacion;
