@@ -34,9 +34,15 @@ class User extends Authenticatable
         ];
     }
 
-    public function isAdmin(): bool
+    public function isMaestro(): bool
     {
-        return $this->hasRole('admin');
+        return $this->hasRole('maestro');
+    }
+
+
+    public function alumno () 
+    {
+        return $this->hasOne(Alumno::class);
     }
 
 

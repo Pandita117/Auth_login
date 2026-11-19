@@ -1,38 +1,28 @@
 <?php
 
+use App\Http\Controllers\AlumnoController;
+use App\Http\Controllers\MaestroController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\AdminController;
-use App\Http\Middleware\EnsureAdminTwoFactor;
-
-
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
 Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+// Rutas del Maestro (su página inicial es el listado de alumnos: alumnos.index)
+Route::middleware(['auth', 'role:maestro'])->group(function () {
+    Route::resource('alumnos', MaestroController::class)->except(['show']);
 
-
-
-// Rutas del proceso 2FA (requiere estar autenticado)
-Route::middleware(['auth'])->group(function () {
-    // URL temporal
-    Route::get('/admin/autenticar/{token}', [AdminController::class, 'showVerifyForm'])
-        ->name('admin.autenti')
-        ->middleware('signed');
-
-    // Procesar el código ingresado
-    Route::post('/admin/autenticar', [AdminController::class, 'verifyCode'])
-        ->name('admin.autenti.verify');
+    Route::get('/evaluaciones', [MaestroController::class, 'evaluaciones'])->name('alumnos.evaluaciones');
+    Route::post('/evaluaciones', [MaestroController::class, 'guardarEvaluaciones'])->name('alumnos.evaluaciones.guardar');
 });
 
-// Rutas administrativas ya verificadas con 2FA
-Route::middleware(['auth', EnsureAdminTwoFactor::class])
-    ->prefix('admin')
-    ->name('admin.')
+// Rutas del Alumno
+Route::middleware(['auth', 'role:alumno'])
+    ->prefix('alumno')
+    ->name('alumno.')
     ->group(function () {
-        Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
-        // Aquí agregas el resto de tus rutas administrativas
+        Route::get('/dashboard', [AlumnoController::class, 'index'])->name('dashboard');
     });
