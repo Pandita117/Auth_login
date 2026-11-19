@@ -13,6 +13,53 @@
         </div>
 
         <div class="card-body">
+            <form method="GET" action="{{ route('alumnos.index') }}" class="row g-2 align-items-center mb-3">
+    <div class="col-auto">
+        <label for="orden" class="col-form-label fw-bold text-muted small">Ordenar por:</label>
+    </div>
+    <div class="col-auto">
+        <select name="orden" id="orden" class="form-select form-select-sm" onchange="this.form.submit()">
+            <option value="id_asc" {{ $orden === 'id_asc' ? 'selected' : '' }}>
+                Matrícula (Por defecto)
+            </option>
+
+            <optgroup label="Alfabéticamente (Nombre)">
+                <option value="nombre_asc" {{ $orden === 'nombre_asc' ? 'selected' : '' }}>
+                    Nombre: A - Z
+                </option>
+                <option value="nombre_desc" {{ $orden === 'nombre_desc' ? 'selected' : '' }}>
+                    Nombre: Z - A
+                </option>
+            </optgroup>
+
+            <optgroup label="Por Calificación">
+                <option value="calificacion_desc" {{ $orden === 'calificacion_desc' ? 'selected' : '' }}>
+                    Calificación: Mayor a menor
+                </option>
+                <option value="calificacion_asc" {{ $orden === 'calificacion_asc' ? 'selected' : '' }}>
+                    Calificación: Menor a mayor
+                </option>
+            </optgroup>
+
+            <optgroup label="Por Faltas">
+                <option value="faltas_desc" {{ $orden === 'faltas_desc' ? 'selected' : '' }}>
+                    Faltas: Mayor a menor
+                </option>
+                <option value="faltas_asc" {{ $orden === 'faltas_asc' ? 'selected' : '' }}>
+                    Faltas: Menor a mayor
+                </option>
+            </optgroup>
+        </select>
+    </div>
+
+    @if ($orden !== 'id_asc')
+        <div class="col-auto">
+            <a href="{{ route('alumnos.index') }}" class="btn btn-outline-secondary btn-sm">
+                Restablecer
+            </a>
+        </div>
+    @endif
+</form>
             @if ($alumnos->isEmpty())
                 <p class="text-muted mb-0">No hay alumnos registrados todavía.</p>
             @else

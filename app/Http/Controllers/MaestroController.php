@@ -12,11 +12,33 @@ class MaestroController extends Controller
 {
 
 //lista los destos
-public function index()
-    {
-        $alumnos = Alumno::with('user')->orderBy('id', 'asc')->get();
-        return view('alumnos.index', compact('alumnos'));
-    }
+public function index(Request $request)
+{
+    $orden = $request->query('orden', 'id_asc');
+    
+    $query = Alumno::with('user')
+        ->join('users', 'alumnos.user_id', '=', 'users.id')
+        ->select('alumnos.*'); 
+
+        //para mostrar a los desstos
+    match ($orden) {
+        'nombre_asc'        => $query->orderBy('users.name', 'asc'),
+        'nombre_desc'       => $query->orderBy('users.name', 'desc'),
+        'calificacion_desc' => $query->orderBy('alumnos.calificacion', 'desc'),
+        'calificacion_asc'  => $query->orderBy('alumnos.calificacion', 'asc'),
+        'faltas_desc'       => $query->orderBy('alumnos.faltas', 'desc'),
+        'faltas_asc'        => $query->orderBy('alumnos.faltas', 'asc'),
+        default             => $query->orderBy('alumnos.id', 'asc'),
+    };
+
+    $alumnos = $query->get();
+
+    return view('alumnos.index', compact('alumnos', 'orden'));
+}
+
+
+
+
 
 //formulario para crear nuevo chaval
     public function create()
