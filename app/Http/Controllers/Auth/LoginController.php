@@ -10,7 +10,7 @@ class LoginController extends Controller
 {
     use AuthenticatesUsers;
 
-    protected $redirectTo = '/home';
+    protected $redirectTo = '/equipos';
 
     public function __construct()
     {
@@ -20,13 +20,9 @@ class LoginController extends Controller
 
     protected function authenticated(Request $request, $user)
     {
-        if ($user->hasRole('maestro')) {
-            return redirect()->route('maestro.dashboard');
-        }
-
-        if ($user->hasRole('alumno')) {
-            return redirect()->route('alumno.dashboard');
-        }
+    if ($user->hasAnyRole(['amin', 'estudiante'])) {
+        return redirect()->route('equipos.index');
+    }
 
         return redirect($this->redirectPath());
     }

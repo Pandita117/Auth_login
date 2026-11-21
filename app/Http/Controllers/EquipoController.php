@@ -13,6 +13,8 @@ class EquipoController extends Controller
 
     public function index()
     {
+
+    
     $equipos = Auth::user()->hasRole('admin')
     ? Equipo::orderBy('codigo')->get()
     : Equipo::where('estado', 'Disponible')->orderBy('codigo')->get();

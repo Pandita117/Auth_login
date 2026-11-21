@@ -55,7 +55,7 @@ class ReservacionController extends Controller
 
     public function cancelar(Reservacion $reservacion)
     {
-        if (!Auth::user()->hasRole('Administrador') && $reservacion->user_id !== Auth::id()) {
+        if (!Auth::user()->hasRole('admin') && $reservacion->user_id !== Auth::id()) {
             abort(403, 'No tienes permiso para cancelar una reservación que no te pertenece.');
         }
 
