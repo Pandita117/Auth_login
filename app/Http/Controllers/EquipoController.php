@@ -25,14 +25,14 @@ class EquipoController extends Controller
 
     public function create()
     {
-        return view ('equipos.create',compact('equipos'));
+        return view ('equipos.create');
     }
 
     public function store(Request $request)
     {
         $datos = $request->validate([
             'codigo' => 'required|string|max:50|unique:equipos,codigo',
-            'nombre' => 'required|string1max:150',
+            'nombre' => 'required|string|max:150',
             'descripcion' => 'nullable|string',
             'estado' => 'required|in:Disponible,Ocupado',
             
@@ -57,7 +57,7 @@ class EquipoController extends Controller
     public function update(Request $request, Equipo $equipo)
     {
         $datos = $request->validate([
-            'codigo' => 'required|string|max:50|unique|:equipos,codigo,' . $equipo->id,
+            'codigo' => 'required|string|max:50|unique:equipos,codigo,' . $equipo->id,
             'nombre' => 'required|string|max:150',
             'descripcion' => 'nullable|string',
             'estado' => 'required|in:Disponible,Ocupado'
@@ -76,18 +76,17 @@ class EquipoController extends Controller
     }
 
 
-    public function destroy(Equipo $equipo)
-    {
-        if($equipo->reservaciones->exists()){
-            return back()->with('error', 'No se puede eliminar el equipo por que tiene reservaciones');
-        }
-
-        $equipo->delete();
-
-        return redirect()->route('equipos.index')
-
-        ->with('mensaje', 'Equipo eliminado correctamente');
+   public function destroy(Equipo $equipo)
+{
+    if ($equipo->reservaciones()->exists()) {
+        return back()->with('error', 'No se puede eliminar el equipo porque tiene reservaciones registradas.');
     }
+
+    $equipo->delete();
+
+    return redirect()->route('equipos.index')
+        ->with('mensaje', 'Equipo eliminado correctamente.');
+}
 
 
 

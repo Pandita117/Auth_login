@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Equipo extends Model
 {
-    protected $fillable = ['coodigo', 'nombre','descripcion', 'estado'];
+    protected $fillable = ['codigo', 'nombre','descripcion', 'estado'];
 
     
     public function reservaciones()
