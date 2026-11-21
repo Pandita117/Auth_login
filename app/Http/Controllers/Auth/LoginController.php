@@ -20,7 +20,7 @@ class LoginController extends Controller
 
     protected function authenticated(Request $request, $user)
     {
-    if ($user->hasAnyRole(['amin', 'estudiante'])) {
+    if ($user->hasAnyRole(['admin', 'estudiante'])) {
         return redirect()->route('equipos.index');
     }
 
