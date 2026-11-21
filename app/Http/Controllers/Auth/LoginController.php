@@ -10,7 +10,7 @@ class LoginController extends Controller
 {
     use AuthenticatesUsers;
 
-    protected $redirectTo = '/home';
+    protected $redirectTo = '/productos';
 
     public function __construct()
     {
@@ -20,12 +20,8 @@ class LoginController extends Controller
 
     protected function authenticated(Request $request, $user)
     {
-        if ($user->hasRole('admin')) {
-            return redirect()->route('maestro.dashboard');
-        }
-
-        if ($user->hasRole('Empleado')) {
-            return redirect()->route('alumno.dashboard');
+        if ($user->hasAnyRole(['admin', 'Empleado'])) {
+            return redirect()->route('productos.index');
         }
 
         return redirect($this->redirectPath());

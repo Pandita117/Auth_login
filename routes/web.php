@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AdminController;
 use App\Http\Middleware\EnsureAdminTwoFactor;
+use App\Http\Controllers\ProductoController;
 
 
 Route::get('/', function () {
@@ -12,27 +13,20 @@ Route::get('/', function () {
 
 Auth::routes();
 
+
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/productos/create', [ProductoController::class, 'create'])->name('productos.create');
+    Route::post('/productos', [ProductoController::class, 'store'])->name('productos.store');
+    Route::get('/productos/{producto}/edit', [ProductoController::class, 'edit'])->name('productos.edit');
+    Route::put('/productos/{producto}', [ProductoController::class, 'update'])->name('productos.update');
+    Route::delete('/productos/{producto}', [ProductoController::class, 'destroy'])->name('productos.destroy');
+});
+
+Route::middleware(['auth', 'role:admin|Empleado'])->group(function () {
+    Route::get('/productos', [ProductoController::class, 'index'])->name('productos.index');
+});
+
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 
 
-// Rutas del proceso 2FA (requiere estar autenticado)
-Route::middleware(['auth'])->group(function () {
-    // URL temporal
-    Route::get('/admin/autenticar/{token}', [AdminController::class, 'showVerifyForm'])
-        ->name('admin.autenti')
-        ->middleware('signed');
-
-    // Procesar el código ingresado
-    Route::post('/admin/autenticar', [AdminController::class, 'verifyCode'])
-        ->name('admin.autenti.verify');
-});
-
-// Rutas administrativas ya verificadas con 2FA
-Route::middleware(['auth', EnsureAdminTwoFactor::class])
-    ->prefix('admin')
-    ->name('admin.')
-    ->group(function () {
-        Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
-        // Aquí agregas el resto de tus rutas administrativas
-    });
