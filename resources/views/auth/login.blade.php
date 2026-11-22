@@ -50,14 +50,19 @@
                                 </div>
                             </div>
                         </div>
+                        
 
                         <div class="row mb-0">
-                            <div class="col-md-8 offset-md-4">
-                                <button type="submit" class="btn btn-primary">
-                                    {{ __('Login') }}
-                                </button>
-                            </div>
-                        </div>
+    <div class="col-md-8 offset-md-4">
+        <button type="submit" class="btn btn-primary">
+            Iniciar sesión
+        </button>
+
+        <a class="btn btn-link" href="{{ route('register') }}">
+            ¿No tienes cuenta? Regístrate
+        </a>
+    </div>
+</div>
                     </form>
                 </div>
             </div>

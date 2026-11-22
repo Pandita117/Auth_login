@@ -1,38 +1,33 @@
 <?php
 
+use App\Http\Controllers\PartidaController;
+use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\AdminController;
-use App\Http\Middleware\EnsureAdminTwoFactor;
-
-
 Route::get('/', function () {
-    return view('welcome');
+    return Auth::check() ? redirect()->route('partidas.index') : redirect()->route('login');
 });
 
 Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-
-
-
-// Rutas del proceso 2FA (requiere estar autenticado)
-Route::middleware(['auth'])->group(function () {
-    // URL temporal
-    Route::get('/admin/autenticar/{token}', [AdminController::class, 'showVerifyForm'])
-        ->name('admin.autenti')
-        ->middleware('signed');
-
-    // Procesar el código ingresado
-    Route::post('/admin/autenticar', [AdminController::class, 'verifyCode'])
-        ->name('admin.autenti.verify');
+// rutas compartidas
+Route::middleware(['auth', 'role:admin|jugador'])->group(function () {
+    Route::get('/partidas', [PartidaController::class, 'index'])->name('partidas.index');
+    Route::get('/partidas/{partida}', [PartidaController::class, 'show'])->name('partidas.show');
+    Route::get('/partidas/{partida}/estado', [PartidaController::class, 'estado'])->name('partidas.estado');
 });
 
-// Rutas administrativas ya verificadas con 2FA
-Route::middleware(['auth', EnsureAdminTwoFactor::class])
-    ->prefix('admin')
-    ->name('admin.')
-    ->group(function () {
-        Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
-        // Aquí agregas el resto de tus rutas administrativas
-    });
+// rutas del jugador
+Route::middleware(['auth', 'role:jugador'])->group(function () {
+    Route::post('/partidas', [PartidaController::class, 'store'])->name('partidas.store');
+    Route::post('/partidas/{partida}/unirse', [PartidaController::class, 'unirse'])->name('partidas.unirse');
+    Route::post('/partidas/{partida}/mover', [PartidaController::class, 'mover'])->name('partidas.mover');
+    Route::patch('/partidas/{partida}/abandonar', [PartidaController::class, 'abandonar'])->name('partidas.abandonar');
+});
+
+// rutas exclusivas del admin
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::patch('/partidas/{partida}/cancelar', [PartidaController::class, 'cancelarAdmin'])->name('partidas.cancelar');
+    Route::resource('usuarios', UserController::class)->except(['show']);
+});
