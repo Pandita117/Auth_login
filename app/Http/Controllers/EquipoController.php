@@ -6,6 +6,8 @@ use App\Models\Equipo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\DB;
+
 
 
 class EquipoController extends Controller
@@ -54,26 +56,34 @@ class EquipoController extends Controller
         return view('equipos.edit', compact('equipo'));
     }
 
-    public function update(Request $request, Equipo $equipo)
-    {
-        $datos = $request->validate([
-            'codigo' => 'required|string|max:50|unique:equipos,codigo,' . $equipo->id,
-            'nombre' => 'required|string|max:150',
-            'descripcion' => 'nullable|string',
-            'estado' => 'required|in:Disponible,Ocupado'
-        ],
+   public function update(Request $request, Equipo $equipo)
+{
+    $datos = $request->validate([
+        'codigo' => 'required|string|max:50|unique:equipos,codigo,' . $equipo->id,
+        'nombre' => 'required|string|max:150',
+        'descripcion' => 'nullable|string',
+        'estado' => 'required|in:Disponible,Ocupado'
+    ],
+    [
+        'codigo.required' => 'El codigo del equipo es obligatorio',
+        'codigo.unique' => 'El codigo del equipo ya esta regitrado',
+        'nombre.required' => 'El nombre del equipo es obligatorio',
+    ]);
 
-        [
-            'codigo.required' => 'El codigo del equipo es obligatorio',
-            'codigo.unique' => 'El codigo del equipo ya esta regitrado',
-            'nombre.required' => 'El nombre del equipo es obligatorio',
-        ]);
-
+    DB::transaction(function () use ($equipo, $datos) {
         $equipo->update($datos);
 
-        return redirect()->route('equipos.index')
+        // admin regresa equipo en edicion a disponivle cambiando el estado a cancelada
+        if ($datos['estado'] === 'Disponible') {
+            $equipo->reservaciones()
+                ->where('estado', 'Activa')
+                ->update(['estado' => 'Cancelada']);
+        }
+    });
+
+    return redirect()->route('equipos.index')
         ->with('mensaje', 'Equipo actualizado correctamente');
-    }
+}
 
 
    public function destroy(Equipo $equipo)
