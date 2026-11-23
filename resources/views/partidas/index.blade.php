@@ -65,8 +65,8 @@
                         </div>
                     </div>
                 </div>
-
-                {{-- Lista de jugadores disponibles --}}
+{{-- 
+               
                 <div class="col-md-4">
                     <div class="card shadow-sm border-0">
                         <div class="card-header bg-dark text-white fw-bold">Jugadores registrados</div>
@@ -83,7 +83,7 @@
                     </div>
                 </div>
             </div>
-
+ --}}
             {{-- Mis partidas / Historial --}}
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-secondary text-white fw-bold">Mis partidas e historial</div>

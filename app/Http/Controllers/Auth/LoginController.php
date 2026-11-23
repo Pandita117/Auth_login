@@ -17,7 +17,7 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
         $this->middleware('auth')->only('logout');
     }
-
+/* 
     protected function authenticated(Request $request, $user)
     {
         if ($user->hasRole('maestro')) {
@@ -29,5 +29,5 @@ class LoginController extends Controller
         }
 
         return redirect($this->redirectPath());
-    }
+    } */
 }

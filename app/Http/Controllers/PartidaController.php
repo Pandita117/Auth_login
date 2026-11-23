@@ -204,38 +204,50 @@ class PartidaController extends Controller
     }
 
     // abandono party da la victoria
-    public function abandonar($id)
-    {
-        DB::transaction(function () use ($id) {
-            $partida = Partida::where('id', $id)->lockForUpdate()->firstOrFail();
+   public function abandonar(Partida $partida)
+{
+    $user = Auth::user();
 
-            if (!in_array($partida->estado, ['Esperando', 'En curso'])) {
-                return;
-            }
-
-            //cancea 
-            if ($partida->estado === 'Esperando' && $partida->jugador_x_id === Auth::id()) {
-                $partida->update([
-                    'estado'    => 'Cancelada',
-                    'resultado' => 'Cancelada por el creador',
-                ]);
-                return;
-            }
-
-                //hace el cmabio de quien es el ganador dependendieo d quien se rindio
-            $esX = $partida->jugador_x_id === Auth::id();
-            $ganadorId = $esX ? $partida->jugador_o_id : $partida->jugador_x_id;
-            $simboloGanador = $esX ? 'O' : 'X';
-
-            $partida->update([
-                'estado'     => 'Finalizada',
-                'resultado'  => 'Ganó ' . $simboloGanador . ' (por abandono)',
-                'ganador_id' => $ganadorId,
-            ]);
-        });
-
-        return redirect()->route('partidas.index')->with('mensaje', 'Has abandonado la partida.');
+    if ($partida->jugador_x_id !== $user->id && $partida->jugador_o_id !== $user->id) {
+        abort(403, 'No perteneces a esta partida.');
     }
+
+    // si la partida ya finalizo o fue cancelada no se puede abandonar
+    if (!in_array($partida->estado, ['Esperando', 'En curso'])) {
+        return redirect()->route('partidas.show', $partida->id)
+            ->with('error', 'La partida ya finalizó o fue cancelada; no se puede abandonar.');
+    }
+
+    DB::transaction(function () use ($partida, $user) {
+        $partidaBloqueada = Partida::where('id', $partida->id)->lockForUpdate()->firstOrFail();
+
+        if (!in_array($partidaBloqueada->estado, ['Esperando', 'En curso'])) {
+            return;
+        }
+
+        if ($partidaBloqueada->estado === 'Esperando') {
+            $partidaBloqueada->update([
+                'estado'    => 'Cancelada',
+                'resultado' => 'Cancelada por el creador',
+            ]);
+        } else {
+            $ganadorId = ($partidaBloqueada->jugador_x_id === $user->id)
+                ? $partidaBloqueada->jugador_o_id
+                : $partidaBloqueada->jugador_x_id;
+
+            $fichaGanadora = ($partidaBloqueada->jugador_x_id === $ganadorId) ? 'X' : 'O';
+
+            $partidaBloqueada->update([
+                'estado'     => 'Finalizada',
+                'ganador_id' => $ganadorId,
+                'resultado'  => "Ganador: {$fichaGanadora} (por abandono)",
+            ]);
+        }
+    });
+
+    return redirect()->route('partidas.index')
+        ->with('mensaje', 'Has abandonado la partida.');
+}
 
     // Cancelar partida del admin
     public function cancelarAdmin(Partida $partida)
