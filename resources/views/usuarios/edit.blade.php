@@ -14,31 +14,40 @@
         <div class="card shadow-sm border-0 mx-auto" style="max-width: 500px;">
             <div class="card-header bg-warning fw-bold">Editar usuario: {{ $usuario->name }}</div>
             <div class="card-body">
-                @if ($errors->any())
-                    <div class="alert alert-danger">{{ $errors->first() }}</div>
-                @endif
 
-                <form action="{{ route('usuarios.update', $usuario->id) }}" method="POST">
+                <form action="{{ route('usuarios.update', $usuario->id) }}" method="POST" novalidate>
                     @csrf
                     @method('PUT')
                     <div class="mb-3">
                         <label class="form-label">Nombre</label>
-                        <input type="text" name="name" class="form-control" value="{{ old('name', $usuario->name) }}" required>
+                        <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', $usuario->name) }}">
+                        @error('name')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Correo electrónico</label>
-                        <input type="email" name="email" class="form-control" value="{{ old('email', $usuario->email) }}" required>
+                        <input type="text" name="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email', $usuario->email) }}">
+                        @error('email')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Nueva contraseña (dejar vacío para no cambiar)</label>
-                        <input type="password" name="password" class="form-control">
+                        <input type="password" name="password" class="form-control @error('password') is-invalid @enderror">
+                        @error('password')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Rol</label>
-                        <select name="rol" class="form-select">
-                            <option value="jugador" {{ $usuario->hasRole('jugador') ? 'selected' : '' }}>Jugador</option>
-                            <option value="admin" {{ $usuario->hasRole('admin') ? 'selected' : '' }}>Administrador</option>
+                        <select name="rol" class="form-select @error('rol') is-invalid @enderror">
+                            <option value="jugador" {{ old('rol', $usuario->hasRole('jugador') ? 'jugador' : 'admin') === 'jugador' ? 'selected' : '' }}>Jugador</option>
+                            <option value="admin" {{ old('rol', $usuario->hasRole('jugador') ? 'jugador' : 'admin') === 'admin' ? 'selected' : '' }}>Administrador</option>
                         </select>
+                        @error('rol')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="d-flex justify-content-end gap-2">
                         <a href="{{ route('usuarios.index') }}" class="btn btn-secondary">Cancelar</a>
