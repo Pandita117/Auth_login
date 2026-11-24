@@ -8,13 +8,13 @@
                 <div class="card-header fw-bold">Editar Usuario: {{ $user->name }}</div>
 
                 <div class="card-body">
-                    <form method="POST" action="{{ route('users.update', $user->id) }}">
+                    <form method="POST" action="{{ route('users.update', $user->id) }}" novalidate>
                         @csrf
                         @method('PUT')
 
                         <div class="mb-3">
                             <label for="name" class="form-label">Nombre completo</label>
-                            <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name', $user->name) }}" required>
+                            <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name', $user->name) }}">
                             @error('name')
                                 <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
                             @enderror
@@ -22,7 +22,7 @@
 
                         <div class="mb-3">
                             <label for="email" class="form-label">Correo electrónico</label>
-                            <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email', $user->email) }}" required>
+                            <input id="email" type="text" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email', $user->email) }}">
                             @error('email')
                                 <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
                             @enderror
@@ -32,7 +32,8 @@
                             <div class="mb-3">
                                 <label for="role" class="form-label">Rol del usuario</label>
                                 @php $rolActual = $user->roles->first()?->name; @endphp
-                                <select id="role" name="role" class="form-select @error('role') is-invalid @enderror" required>
+                                <select id="role" name="role" class="form-select @error('role') is-invalid @enderror">
+                                    <option value="">Selecciona un rol...</option>
                                     @foreach ($roles as $rol)
                                         <option value="{{ $rol->name }}" {{ old('role', $rolActual) === $rol->name ? 'selected' : '' }}>
                                             {{ ucfirst($rol->name) }}
