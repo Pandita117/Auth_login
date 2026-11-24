@@ -18,7 +18,7 @@
                         Hemos enviado un código de 6 dígitos a tu correo electrónico. Tienes 5 minutos para ingresarlo antes de que el enlace expire.
                     </p>
 
-                    <form method="POST" action="{{ route('admin.autenti.verify') }}">
+                    <form method="POST" action="{{ route('admin.autenti.verify') }}" novalidate>
                         @csrf
 
                         <div class="mb-3">
@@ -27,11 +27,10 @@
                                 id="two_factor_code"
                                 type="text"
                                 inputmode="numeric"
-                                maxlength="6"
                                 class="form-control form-control-lg text-center @error('two_factor_code') is-invalid @enderror"
                                 name="two_factor_code"
+                                value="{{ old('two_factor_code') }}"
                                 placeholder="000000"
-                                required
                                 autofocus
                             >
 
